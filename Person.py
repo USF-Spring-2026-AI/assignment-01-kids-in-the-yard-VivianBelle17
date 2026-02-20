@@ -17,18 +17,18 @@ class Person:
 
     def get_birth_year(self):
         return self.__year_born
-    
+
     def get_first_name(self):
         return self.__first_name
-    
+
     def get_last_name(self):
         return self.__last_name
-    
+
     def get_partner(self):
         return self.__partner
-    
+
     def get_children(self):
         return list(self.__children)
-    
+
     def get_year_died(self):
         return self.__year_died

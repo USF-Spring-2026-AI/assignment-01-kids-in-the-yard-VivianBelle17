@@ -4,6 +4,7 @@ class FamilyTree:
     def __init__(self):
         self.factory = PersonFactory()
         self.people = []
+        self.founders_last_names = []
 
 
     def generate_tree(self):
@@ -12,11 +13,13 @@ class FamilyTree:
 
         print("Generating family tree...")
 
-        p1 = self.factory.create_person(1950)
-        p2 = self.factory.create_person(1950)
+        p1 = self.factory.create_person(1950, descendant=False)
+        p2 = self.factory.create_person(1950, descendant=False)
 
         p1.set_partner(p2)
         p2.set_partner(p1)
+
+        self.founders_last_names = [p1.get_last_name(), p2.get_last_name()]
 
         self.people = [p1, p2]
 
@@ -28,7 +31,7 @@ class FamilyTree:
             spouse = parent.partner
 
             if spouse is None:
-                spouse = self.factory.generate_spouse(parent.get_birth_year())
+                spouse = self.factory.generate_spouse(parent.get_birth_year(), descendant=False)
                 
                 if spouse:
                     self.people.append(spouse)
@@ -44,7 +47,7 @@ class FamilyTree:
                 elder_year = parent.get_birth_year()
 
             
-            children = self.factory.generate_children(elder_year, parent.get_birth_year())
+            children = self.factory.generate_children(elder_year, parent.get_birth_year(), self.founders_last_names)
 
             for child in children:
                 if child is None:
@@ -58,10 +61,6 @@ class FamilyTree:
                     spouse.children.append(child)
 
         print("Family tree generated!")
-
-
-
-
 
 
     def total_people(self):
@@ -126,4 +125,3 @@ if __name__ == "__main__":
 
     tree.generate_tree()
     tree.menu()
-

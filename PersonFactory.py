@@ -26,11 +26,15 @@ class PersonFactory:
         print("Read files: Completed")
 
     def generate_year_died(self, year_born):
+        year_born = int(year_born)
         length = rand.randint(-10, 10)
 
-        index = self.life_expectancy["Year"] == year_born
+        data = self.life_expectancy
+
+        index = data["Year"] == year_born
 
         # Returns the whole row so you need to get the value at the str column
+
         life_expec = self.life_expectancy[index]["Period life expectancy at birth"].values[0]
         
         year_died = int(life_expec) + length + year_born
@@ -63,6 +67,11 @@ class PersonFactory:
         return data.sample(n=1)['LastName'].values[0]
 
     def create_person(self, year_born):
+
+        if year_born > 2120:
+            return None
+
+
         gender = self.choose_gender()
         first_name = self.choose_first_name(year_born, gender)
         last_name = self.choose_last_name(year_born)
@@ -83,28 +92,34 @@ class PersonFactory:
 
         if rand.random() < prob:
             spouse_born = rand.randint(-10, 10) + year_born
+            if spouse_born > 2120:
+                return None
+            
             return self.create_person(spouse_born)
         
         return None
     
-    def generate_children(self, parent_year):
+    def generate_children(self, elder_year, parent_year):
 
         data = self.birth_marriage_rate
 
         index = data['decade'] == self.get_decade_s(parent_year)
         birth_rate = data[index]['birth_rate'].values[0]
         
-        lower = max(0, math.ceil(birth_rate - 1.5))
-        upper = math.ceil(birth_rate + 1.5)
+        lower = int(max(0, math.ceil(birth_rate - 1.5)))
+        upper = int(math.ceil(birth_rate + 1.5))
 
         num_childs = rand.randint(lower, upper)
 
-        starting_year = parent_year + 25
-        ending_year = parent_year + 45
+        starting_year = elder_year + 25
+        ending_year = elder_year + 45
         
         children = []
 
         if num_childs == 1:
+            if starting_year > 2120:
+                return []
+            
             children.append(self.create_person(starting_year))
 
         elif num_childs == 0:

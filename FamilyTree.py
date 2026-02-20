@@ -28,7 +28,7 @@ class FamilyTree:
         while process:
 
             parent = process.pop(0)
-            spouse = parent.partner
+            spouse = parent.get_partner()
 
             if spouse is None:
                 spouse = self.factory.generate_spouse(parent.get_birth_year(), descendant=False)
@@ -55,10 +55,10 @@ class FamilyTree:
 
                 process.append(child)
                 self.people.append(child)
-                parent.children.append(child)
+                parent.add_child(child)
 
                 if spouse:
-                    spouse.children.append(child)
+                    spouse.add_child(child)
 
         print("Family tree generated!")
 
@@ -70,7 +70,7 @@ class FamilyTree:
         count = {}
 
         for p in self.people:
-            decade = (p.year_born // 10) * 10
+            decade = (p.get_birth_year() // 10) * 10
             count[decade] = count.get(decade, 0) + 1
 
         return count
@@ -80,7 +80,7 @@ class FamilyTree:
         name_count = {}
 
         for p in self.people:
-            name = f"{p.first_name} {p.last_name}"
+            name = f"{p.get_first_name()} {p.get_last_name()}"
             name_count[name] = name_count.get(name, 0) + 1
 
         return [name for name, count in name_count.items() if count > 1]

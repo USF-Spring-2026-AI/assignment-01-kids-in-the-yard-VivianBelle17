@@ -1,7 +1,4 @@
-# Read the data files and generate new instances of the Person class.
-
-# get_person(year_born), read_files()
-
+import math
 import pandas as pd
 import random as rand
 
@@ -89,5 +86,42 @@ class PersonFactory:
             return self.create_person(spouse_born)
         
         return None
+    
+    def generate_children(self, parent_year):
+
+        data = self.birth_marriage_rate
+
+        index = data['decade'] == self.get_decade_s(parent_year)
+        birth_rate = data[index]['birth_rate'].values[0]
+        
+        lower = max(0, math.ceil(birth_rate - 1.5))
+        upper = math.ceil(birth_rate + 1.5)
+
+        num_childs = rand.randint(lower, upper)
+
+        starting_year = parent_year + 25
+        ending_year = parent_year + 45
+        
+        children = []
+
+        if num_childs == 1:
+            children.append(self.create_person(starting_year))
+
+        elif num_childs == 0:
+            return []
+        else:
+            inc = (ending_year - starting_year) / (num_childs - 1)
+
+            for i in range(num_childs):
+                child_year = round(starting_year + (i * inc))
+                
+                if child_year > 2120:
+                    break
+                else:
+                    children.append(self.create_person(child_year))
+
+        return children
+
+
 
         

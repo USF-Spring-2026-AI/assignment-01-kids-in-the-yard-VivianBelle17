@@ -73,5 +73,6 @@ if __name__ == "__main__":
     tree = FamilyTree()
 
     tree.generate_initial_people()
+
     tree.menu()
 

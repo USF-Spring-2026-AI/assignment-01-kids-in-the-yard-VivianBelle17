@@ -32,5 +32,24 @@ class PersonFactory:
         year_died = int(life_expec) + length + year_born
 
         return year_died
+    
+
+    def choose_first_name(self, year_born, gender):
+        decade = (year_born // 10) * 10
+
+        # From the csv file, get the matching decade and gender
+        data = self.first_names[
+            (self.first_names['decade'] == decade) &
+            (self.first_names['gender'] == gender)
+        ]
+
+        # Get 1 random row based on the frequency column of the data
+        name_row = data.sample(n=1, weights='frequency')
+
+        # Return the first value from the name column of that row
+        return name_row['name'].values[0]
+        
+
+
 
 

@@ -34,13 +34,44 @@ class FamilyTree:
             name_count[name] = name_count.get(name, 0) + 1
 
         return [name for name, count in name_count.items() if count > 1]
-        
+    
+    def menu(self):
+        while True:
 
+            print("Are you interested in: ")
+            print("(T)otal number of people in the tree")
+            print("Total number of people in the tree by (D)ecade") 
+            print("(N)ames duplicated")
+            print("(Q)uit")
+        
+            choice = input("--> ").strip().upper()
+
+            if choice == "T":
+                print(f"The tree contains {self.total_people()} people total")
+
+            elif choice == "D":
+                td = self.total_decade()
+                for decade, count in sorted(td.items()):
+                    print(f"{decade}: {count}")
+
+            elif choice == "N":
+                dups = self.duplicate_names()
+                print(f"There are {len(dups)} duplicate names in the tree ")
+                for name in dups:
+                    print(f"* {name}")
+
+            elif choice == "Q":
+                break
+
+            else:
+                print("Invalid choice. Please choose T, D, N, or Q.")
+
+            print("------------------------------------------")
 
 
 if __name__ == "__main__":
     tree = FamilyTree()
 
     tree.generate_initial_people()
-    print(len(tree.people))
-    print(tree.duplicate_names())
+    tree.menu()
+

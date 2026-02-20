@@ -129,7 +129,7 @@ class FamilyTree:
 
 
             else:
-                print("Invalid choice. Please choose T, D, N, or Q.")
+                print("Invalid choice. Please choose T, D, N, Y, or Q.")
 
             print("------------------------------------------")
 

@@ -84,6 +84,14 @@ class FamilyTree:
             name_count[name] = name_count.get(name, 0) + 1
 
         return [name for name, count in name_count.items() if count > 1]
+    
+    def total_year(self):
+        count = {}
+        for p in self.people:
+            year = p.get_birth_year()
+            count[year] = count.get(year, 0) + 1
+            
+        return count
      
     
     def menu(self):
@@ -93,6 +101,7 @@ class FamilyTree:
             print("(T)otal number of people in the tree")
             print("Total number of people in the tree by (D)ecade") 
             print("(N)ames duplicated")
+            print("Total number of people in the tree by (Y)ear")
             print("(Q)uit")
         
             choice = input("--> ").strip().upper()
@@ -101,8 +110,8 @@ class FamilyTree:
                 print(f"The tree contains {self.total_people()} people total")
 
             elif choice == "D":
-                td = self.total_decade()
-                for decade, count in sorted(td.items()):
+                total_decade = self.total_decade()
+                for decade, count in sorted(total_decade.items()):
                     print(f"{decade}: {count}")
 
             elif choice == "N":
@@ -113,6 +122,11 @@ class FamilyTree:
 
             elif choice == "Q":
                 break
+            elif choice == "Y":
+                total_year = self.total_year()
+                for year, count in sorted(total_year.items()):
+                    print(f'{year}: {count}')
+
 
             else:
                 print("Invalid choice. Please choose T, D, N, or Q.")

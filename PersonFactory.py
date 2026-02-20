@@ -33,6 +33,9 @@ class PersonFactory:
 
         return year_died
     
+    def choose_gender(self):
+        return rand.choice(['female', 'male'])
+    
 
     def choose_first_name(self, year_born, gender):
         decade = (year_born // 10) * 10
@@ -50,6 +53,17 @@ class PersonFactory:
         return name_row['name'].values[0]
         
 
+    def choose_last_name(self):
+        pass
+
+    def create_person(self, year_born):
+        gender = self.choose_gender()
+        first_name = self.choose_first_name(year_born, gender)
+        last_name = self.choose_last_name()
+
+        year_died = self.generate_year_died(year_born)
+
+        return Person(year_born, first_name, last_name, year_died)
 
 
 

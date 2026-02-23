@@ -23,12 +23,34 @@ class PersonFactory:
 
         print("Reading files...")
 
-        self.life_expectancy = pd.read_csv("life_expectancy.csv")
-        self.first_names = pd.read_csv("first_names.csv")
-        self.last_names = pd.read_csv("last_names.csv")
-        # Since this file was a single row of probabilities, you need to read it a differenlty
-        self.rank_to_prob = pd.read_csv("rank_to_probability.csv", header=None)
-        self.birth_marriage_rate = pd.read_csv("birth_and_marriage_rates.csv")
+        try:
+            self.life_expectancy = pd.read_csv("life_expectancy.csv")
+            self.first_names = pd.read_csv("first_names.csv")
+            self.last_names = pd.read_csv("last_names.csv")
+            # Since this file was a single row of probabilities, you need to read it a differenlty
+            self.rank_to_prob = pd.read_csv("rank_to_probability.csv", header=None)
+            self.birth_marriage_rate = pd.read_csv("birth_and_marriage_rates.csv")
+
+        except FileNotFoundError as e:
+            print(f"Error: File not found: {e.filename}")
+            print("Please ensure all CSV files are in the current directory")
+            exit(1)
+        except Exception as e:
+            print("Unexpected error while trying to read data files")
+            print(str(e))
+            exit(1)
+
+        required_files = [
+            self.life_expectancy,
+            self.first_names,
+            self.last_names,
+            self.rank_to_prob,
+            self.birth_marriage_rate,
+        ]
+
+        if any(file is None for file in required_files):
+            print("File needed is missing")
+            exit(1)
 
         print("Read files: Completed")
 

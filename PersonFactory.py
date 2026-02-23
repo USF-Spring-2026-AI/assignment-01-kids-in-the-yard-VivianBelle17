@@ -6,6 +6,11 @@ from Person import Person
 
 
 class PersonFactory:
+    """A PersonFactory class that creates a Person object and assigns the Person's attributes.
+    This class reads CSV files that have information for life expectancy, names, marriage rates,
+    birth rates, and the frequency of those values
+    """
+
     def __init__(self):
         self.birth_marriage_rate = None
         self.first_names = None
@@ -13,6 +18,7 @@ class PersonFactory:
         self.life_expectancy = None
         self.rank_to_prob = None
 
+    # Read all the files for data
     def read_files(self):
 
         print("Reading files...")
@@ -20,30 +26,33 @@ class PersonFactory:
         self.life_expectancy = pd.read_csv("life_expectancy.csv")
         self.first_names = pd.read_csv("first_names.csv")
         self.last_names = pd.read_csv("last_names.csv")
+        # Since this file was a single row of probabilities, you need to read it a differenlty
         self.rank_to_prob = pd.read_csv("rank_to_probability.csv", header=None)
         self.birth_marriage_rate = pd.read_csv("birth_and_marriage_rates.csv")
 
         print("Read files: Completed")
 
+    # Generate the year died based on the year they were born
     def generate_year_died(self, year_born):
         year_born = int(year_born)
         length = rand.randint(-10, 11)
 
+        # Assigning to local variable to improve readability
         data = self.life_expectancy
 
+        # Select the row for this birth year and grab the the life expectancy number for that year
         index = data["Year"] == year_born
-
-        # Returns the whole row so you need to get the value at the str column
-
         life_expec = data[index]["Period life expectancy at birth"].values[0]
 
         year_died = int(life_expec) + length + year_born
 
         return year_died
 
+    # Generate a random gender
     def choose_gender(self):
         return rand.choice(["female", "male"])
 
+    # Chose a first name based on the first_name csv and the frequency of that name
     def choose_first_name(self, year_born, gender):
         decade = self.get_decade_s(year_born)
 
@@ -59,21 +68,27 @@ class PersonFactory:
         # Return the first value from the name column of that row
         return name_row["name"].values[0]
 
+    # Choosing a last name for a non-descendant based on rank
     def choose_last_name(self, year_born):
         decade_str = self.get_decade_s(year_born)
         data = self.last_names[self.last_names["Decade"] == decade_str]
 
+        # Since the data is in one row, grab that row and convert to an array
         prob = self.rank_to_prob.iloc[0].to_numpy()
 
+        # Build weights corresponding to the rows in last_names.csv by mapping the rank to the probability
         weights = [prob[int(rank) - 1] for rank in data["Rank"]]
 
         return data.sample(n=1, weights=weights)["LastName"].values[0]
 
+    # Choosing one of the descendants last name for descendants
     def choose_last_name_d(self, founders_last_names):
         return rand.choice(founders_last_names)
 
+    # Creating a person with year born, descendants, gender, and name attributes. The FLN are required when descendant is True
     def create_person(self, year_born, descendant, founders_last_names=None):
 
+        # A cap for creating people
         if year_born > 2120:
             return None
 
@@ -89,25 +104,27 @@ class PersonFactory:
 
         return Person(year_born, first_name, last_name, year_died)
 
+    # Coverts a decade number to match the decade str in the files
     def get_decade_s(self, year_born):
         return f"{(year_born // 10) * 10}s"
 
+    # Generate a spouse based on the probability on the marriage rates for the decade
     def generate_spouse(self, year_born, descendant=False):
         m_rate = self.birth_marriage_rate
 
         index = m_rate["decade"] == self.get_decade_s(year_born)
-
         prob = m_rate[index]["marriage_rate"].values[0]
 
+        # If a spouse is generated then they are created within ten years of their partner
         if rand.random() < prob:
             spouse_born = rand.randint(-10, 11) + year_born
             if spouse_born > 2120:
                 return None
-
             return self.create_person(spouse_born, descendant)
 
         return None
 
+    # Generate a list of of Person objects for a parent. Returns a list of Person objects; possibly empty.
     def generate_children(self, elder_year, parent_year, founders_last_names):
 
         data = self.birth_marriage_rate
@@ -115,6 +132,7 @@ class PersonFactory:
         index = data["decade"] == self.get_decade_s(parent_year)
         birth_rate = data[index]["birth_rate"].values[0]
 
+        # Compute the lower and upper bounds of children the parent can have
         lower = int(max(0, math.ceil(birth_rate - 1.5)))
         upper = int(math.ceil(birth_rate + 1.5))
 
@@ -125,6 +143,10 @@ class PersonFactory:
 
         children = []
 
+        if num_childs == 0:
+            return []
+
+        # If there is 1 child then create that one one person. Used to avoid division by 0
         if num_childs == 1:
             if starting_year > 2120:
                 return []
@@ -136,24 +158,24 @@ class PersonFactory:
                     founders_last_names=founders_last_names,
                 )
             )
+            return children
 
-        elif num_childs == 0:
-            return []
-        else:
-            inc = (ending_year - starting_year) / (num_childs - 1)
+        # Creating a window so children are born equally within each other
+        window = (ending_year - starting_year) / (num_childs - 1)
 
-            for i in range(num_childs):
-                child_year = round(starting_year + (i * inc))
+        # Looping through the children list to create each of therm
+        for child in range(num_childs):
+            child_year = round(starting_year + (child * window))
 
-                if child_year > 2120:
-                    break
-                else:
-                    children.append(
-                        self.create_person(
-                            child_year,
-                            founders_last_names=founders_last_names,
-                            descendant=True,
-                        )
+            if child_year > 2120:
+                break
+            else:
+                children.append(
+                    self.create_person(
+                        child_year,
+                        founders_last_names=founders_last_names,
+                        descendant=True,
                     )
+                )
 
         return children

@@ -1,4 +1,5 @@
 class Person:
+    """Represents a person in the family tree. Stores birth year, name, and their death year with getters and setters"""
 
     def __init__(self, year_born, first_name, last_name, year_died):
         self.__year_born = year_born
